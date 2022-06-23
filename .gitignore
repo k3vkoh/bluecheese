@@ -1,0 +1,9 @@
+*.png
+
+tickers/tracker/*.txt
+
+collect_data/*.txt
+
+*.db
+
+*.DS_Store

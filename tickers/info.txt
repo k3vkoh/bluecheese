@@ -1,0 +1,10 @@
+these tickers are from https://www.nasdaq.com/market-activity/stocks/screener
+
+the filters applied are:
+
+- NASDAQ
+- Market Cap
+	- Mega (>200B)
+	- Large (10B-200B)
+	- Medium (2B-10B)
+- in the US
