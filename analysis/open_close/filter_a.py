@@ -2,7 +2,7 @@
 # compiles a list of tickers that meet the following criteria:
 # - price >= $100
 # - volume >= 1000000
-# - do not touch close_open when negative
+# - split close_open + and - and then find the mean gain and loss of each
 # - analyze premarket
 
 import pandas as pd 
@@ -24,6 +24,7 @@ today = datetime.now()
 today_string = today.strftime('%Y-%m-%d')
 
 tentative = '../../tickers/tentative/{}.txt'.format(today_string)
+# tentative = '../../tickers/tentative/{}.txt'.format('2022-06-22')
 ticker_list = '../../tickers/tickers.txt'
 
 price_limit = 100
@@ -62,41 +63,79 @@ def high_price_volume():
 
 def close_open_plus_minus_bargraph(ticker, df):
 
-	ytemp = ((df['close'] - df['open'])/df['open']) * 100
-	xtemp = range(1, len(ytemp)+ 1)
+	open_close = ((df['close'] - df['open'])/df['open']) * 100
+	x_values = range(1, len(open_close)+ 1)
 
-	x_above = []
-	y_above = []
-	x_below = []
-	y_below = []
+	co_plus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
+	co_minus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
+
+	oc_plus = []
+	oc_minus = []
 
 	i = 0
-	while i < len(ytemp) - 1:
+	while i < len(open_close) - 1:
+		# classifying based on whether close_open is positive or negative
 		close_open = (df['open'][i] - df['close'][i+1]) > 0
 		if close_open:
-			y_above.append(ytemp[i])
-			x_above.append(xtemp[i])
+			co_plus['y'].append(open_close[i])
+			co_plus['x'].append(x_values[i])
+			# given co+, classify if oc is + or -
+			co_plus['count'] += 1
+			if open_close[i] > 0:
+				co_plus['oc+'].append(open_close[i])
+				co_plus['x+'].append(co_plus['count'])
+				oc_plus.append(open_close[i])
+			else:
+				co_plus['oc-'].append(open_close[i])
+				co_plus['x-'].append(co_plus['count'])
+				oc_minus.append(open_close[i])
 		else:
-			y_below.append(ytemp[i])
-			x_below.append(xtemp[i])
+			co_minus['y'].append(open_close[i])
+			co_minus['x'].append(x_values[i])
+			# given co-, classify if oc is + or -
+			co_minus['count'] += 1
+			if open_close[i] > 0:
+				co_minus['oc+'].append(open_close[i])
+				co_minus['x+'].append(co_minus['count'])
+				oc_plus.append(open_close[i])
+			else:
+				co_minus['oc-'].append(open_close[i])
+				co_minus['x-'].append(co_minus['count'])
+				oc_minus.append(open_close[i])
+
 		i += 1
 
-	fig, ax = plt.subplots()
+	fig, ax = plt.subplots(3, figsize=(10, 20))
+	fig.tight_layout(pad=3)
 
-	plt.bar(x_above, y_above, color = 'Green')
-	plt.bar(x_below, y_below, color = 'Red')
-	plt.ylabel("percentage change")
-	plt.xticks(xtemp,rotation = 90)
+	ax[0].bar(co_plus['x'], co_plus['y'], color = 'Green')
+	ax[0].bar(co_minus['x'], co_minus['y'], color = 'Red')
+	ax[0].set(title='Open Close +/-', xlabel='Days', ylabel='% Change')
+	above_mean = statistics.mean(oc_plus)
+	below_mean = statistics.mean(oc_minus)
+	ax[0].plot([0, 30], [above_mean, above_mean], 'k--')
+	ax[0].plot([0, 30], [below_mean, below_mean], 'k--')
 
-	above_mean = statistics.mean(y_above)
-	below_mean = statistics.mean(y_below)
-	
-	ax.plot([0, 30], [above_mean, above_mean], 'k--')
-	ax.plot([0, 30], [below_mean, below_mean], 'k--')
+	ax[1].bar(co_plus['x+'], co_plus['oc+'], color = 'Green')
+	ax[1].bar(co_plus['x-'], co_plus['oc-'], color = 'Red')
+	ax[1].set(title='Open Close +/- given CO +', xlabel='Days', ylabel='% Change')
+	above_mean = statistics.mean(co_plus['oc+'])
+	below_mean = statistics.mean(co_plus['oc-'])
+	ax[1].plot([0, 30], [above_mean, above_mean], 'k--')
+	ax[1].plot([0, 30], [below_mean, below_mean], 'k--')
+
+	ax[2].bar(co_minus['x+'], co_minus['oc+'], color = 'Green')
+	ax[2].bar(co_minus['x-'], co_minus['oc-'], color = 'Red')
+	ax[2].set(title='Open Close +/- given CO -', xlabel='Days', ylabel='% Change')
+	above_mean = statistics.mean(co_minus['oc+'])
+	below_mean = statistics.mean(co_minus['oc-'])
+	ax[2].plot([0, 30], [above_mean, above_mean], 'k--')
+	ax[2].plot([0, 30], [below_mean, below_mean], 'k--')
 
 	plt.savefig('bargraph/{}.png'.format(ticker))
 
 	plt.close()
+
 
 def main():
 	high_price_volume()
