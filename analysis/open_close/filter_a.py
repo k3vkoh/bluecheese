@@ -3,7 +3,10 @@
 # - price >= $100
 # - volume >= 1000000
 # - split close_open + and - and then find the mean gain and loss of each
-# - analyze premarket
+# - then draw the graphs
+# - analyze when co+ the ratio of plus and minus is plus/minus >= 1.5 and the avg gain is 1% > |avg loss|
+# - analyze when co- the ratio of plus and minus is plus/minus >= 1.5 and the avg gain is 1% > |avg loss|
+# - or we can do based on discrete random variable expected value ? 
 
 import pandas as pd 
 from sqlalchemy.types import Text
@@ -18,19 +21,29 @@ import statistics
 
 from datetime import datetime
 
+import os
+
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
 today = datetime.now()
 today_string = today.strftime('%Y-%m-%d')
 
-tentative = '../../tickers/tentative/{}.txt'.format(today_string)
-# tentative = '../../tickers/tentative/{}.txt'.format('2022-06-22')
-ticker_list = '../../tickers/tickers.txt'
+cwd = os.getcwd()
+
+
+tentative = os.path.join(cwd, 'tickers/tentative', '{}.txt'.format(today_string))
+ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
+bargraph = os.path.join(cwd, 'analysis/open_close/bargraph')
 
 price_limit = 100
 volume_limit = 500000
+pmratio_limit = 1.5
+deltagain_limit = 1.0
 
 limit = 30
+
+# [ticker, plus/minus, deltagain, expected value, co]
+tentative_list = []
 
 def get_data(ticker):
 	sql = """
@@ -48,12 +61,14 @@ def high_price_volume():
 
 	with open(tentative, 'w') as f, open(ticker_list, 'r') as t:
 
+		f.write('Filter: High Price and High Volume\n')
+
 		for temp in t:
 			ticker = temp.strip()
 
 			df = get_data(ticker)
 
-			if len(df['open']) > 0 and len(df['volume']):
+			if len(df['open']) and len(df['volume']):
 				avg_price = statistics.mean(df['open'])
 				avg_volume = statistics.mean(df['volume'])
 				if avg_price >= price_limit and avg_volume >= volume_limit:
@@ -123,6 +138,11 @@ def close_open_plus_minus_bargraph(ticker, df):
 	below_mean = statistics.mean(co_plus['oc-'])
 	ax[1].plot([0, 30], [above_mean, above_mean], 'k--')
 	ax[1].plot([0, 30], [below_mean, below_mean], 'k--')
+	deltagain = above_mean - abs(below_mean)
+	pmratio = len(co_plus['oc+']) / len(co_plus['oc-'])
+	expectedvalue = ((len(co_plus['oc+'])/co_plus['count'])*above_mean) - ((len(co_plus['oc-'])/co_plus['count'])*abs(below_mean))
+	if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
+		tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '+'])
 
 	ax[2].bar(co_minus['x+'], co_minus['oc+'], color = 'Green')
 	ax[2].bar(co_minus['x-'], co_minus['oc-'], color = 'Red')
@@ -131,14 +151,28 @@ def close_open_plus_minus_bargraph(ticker, df):
 	below_mean = statistics.mean(co_minus['oc-'])
 	ax[2].plot([0, 30], [above_mean, above_mean], 'k--')
 	ax[2].plot([0, 30], [below_mean, below_mean], 'k--')
+	deltagain = above_mean - abs(below_mean)
+	pmratio = len(co_minus['oc+']) / len(co_minus['oc-'])
+	expectedvalue = ((len(co_minus['oc+'])/co_minus['count'])*above_mean) - ((len(co_minus['oc-'])/co_minus['count'])*abs(below_mean))
+	if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
+		tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '-'])
 
-	plt.savefig('bargraph/{}.png'.format(ticker))
+	plt.savefig(os.path.join(bargraph, '{}.png'.format(ticker)))
 
 	plt.close()
 
 
-def main():
+def pmratio_deltagain():
+	with open(tentative, 'a') as f:
+
+		f.write('\nFilter: PMratio and Delta Gain\n')
+		for item in tentative_list:
+			f.write('{}, PMratio: {}, Delta Gain: {}, Expected Value: {}, CO: {}\n'.format(item[0], item[1], item[2], item[3], item[4]))
+
+
+def run():
 	high_price_volume()
+	pmratio_deltagain()
 
 if __name__ == '__main__':
-	main()
+	run()

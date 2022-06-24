@@ -7,3 +7,5 @@ collect_data/*.txt
 *.db
 
 *.DS_Store
+
+__pycache__

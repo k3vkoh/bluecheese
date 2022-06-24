@@ -25,6 +25,8 @@ tracker = '../tickers/tracker/{}.txt'.format(today_string)
 
 track = open(tracker, 'w')
 
+errors = 0
+
 def add_to_log(date):
 	with open(log, 'r+') as f:
 		content = f.read()
@@ -52,6 +54,8 @@ def collect():
 			message = extract(r.json(), ticker)
 			track.write(message)
 			track.flush()
+
+	track.write('errors: {}'.format(errors))
 
 	add_to_log(today_string)
 	print("DONE")
@@ -95,6 +99,7 @@ def extract(data, ticker):
 
 		except exception as e:
 			return "{} error: {}\n".format(ticker, e)
+			errors += 1
 
 	else:
 		return "{} no data\n".format(ticker)
