@@ -10,3 +10,5 @@ order of file execution:
 - this will write to:
 	- tickers/tentative
 - this will draw bargraphs to bargraph
+
+- then it will append to the tentative with the second list
