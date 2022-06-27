@@ -4,14 +4,17 @@ from datetime import datetime, timedelta
 import pandas as pd 
 from sqlalchemy.types import Text
 from sqlalchemy import create_engine
+import os
 
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
 API_KEY = '2GFOZA03lLhqa9RNkc3geFiPwmANTspf'
 
-ticker_list = '../tickers/tickers.txt'
+cwd = os.getcwd()
 
-log = 'daily_log.txt'
+ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
+
+log = os.path.join(cwd, 'collect_data', 'daily_log.txt')
 
 d = open(log, 'r')
 start_string = d.readline().strip()
@@ -21,7 +24,7 @@ today_string = today.strftime('%Y-%m-%d')
 end_date = today + timedelta(days=-1)
 end_string = end_date.strftime('%Y-%m-%d')
 
-tracker = '../tickers/tracker/{}.txt'.format(today_string)
+tracker = os.path.join(cwd, 'tickers/tracker', '{}.txt'.format(today_string))
 
 track = open(tracker, 'w')
 
