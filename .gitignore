@@ -9,3 +9,5 @@ collect_data/*.txt
 *.DS_Store
 
 __pycache__
+
+simulation/*
