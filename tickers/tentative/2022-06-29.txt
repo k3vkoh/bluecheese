@@ -1,0 +1,106 @@
+Filter: High Price and High Volume
+AAPL, avg price: 141.108, avg volume: 91146709.93333334
+ABNB, avg price: 110.3732, avg volume: 7882652.666666667
+ADBE, avg price: 398.435, avg volume: 3441396.8
+ADI, avg price: 158.02266666666668, avg volume: 3596537.6666666665
+ADP, avg price: 213.07866666666666, avg volume: 1698190.4
+ADSK, avg price: 189.75016666666667, avg volume: 1893860.4333333333
+ALGN, avg price: 262.5063333333333, avg volume: 1177944.7666666666
+ALNY, avg price: 132.077, avg volume: 929102.5666666667
+AMAT, avg price: 105.9913, avg volume: 8312085.366666666
+AMGN, avg price: 244.72333333333333, avg volume: 3505897.8
+AMZN, avg price: 112.25033333333333, avg volume: 89472936.6
+ANSS, avg price: 248.59933333333333, avg volume: 567377.6666666666
+AVGO, avg price: 543.8383333333334, avg volume: 2641602.3666666667
+BIIB, avg price: 201.02766666666668, avg volume: 1113053.9333333333
+CAR, avg price: 179.091, avg volume: 1140013.4666666666
+CDNS, avg price: 149.15766666666667, avg volume: 1580695.4
+CDW, avg price: 166.031, avg volume: 802222.3333333334
+CHRW, avg price: 104.59616666666666, avg volume: 1258979.3666666667
+CHTR, avg price: 472.2583333333333, avg volume: 1302798.5666666667
+CINF, avg price: 122.25633333333333, avg volume: 561196.3333333334
+CME, avg price: 199.68066666666667, avg volume: 1716313.3
+COST, avg price: 460.3276666666667, avg volume: 3344921.7333333334
+CPRT, avg price: 110.9, avg volume: 1260735.2333333334
+CRWD, avg price: 160.72113333333334, avg volume: 4904924.533333333
+CTAS, avg price: 375.055, avg volume: 555779.7666666667
+DLTR, avg price: 152.8375, avg volume: 2998121.433333333
+EA, avg price: 132.7887, avg volume: 2983356.966666667
+ENPH, avg price: 182.96533333333332, avg volume: 2423500.8666666667
+ENTG, avg price: 104.941, avg volume: 1360911.3
+EQIX, avg price: 660.724, avg volume: 562470.4666666667
+EXPD, avg price: 103.736, avg volume: 1325863.8666666667
+EXPE, avg price: 117.46900000000001, avg volume: 3615012.3666666667
+FANG, avg price: 140.826, avg volume: 3593755.7
+FIVE, avg price: 126.47733333333333, avg volume: 1310787.7666666666
+FTNT, avg price: 240.112, avg volume: 2126800.3666666667
+GOOG, avg price: 2244.295166666667, avg volume: 1584673.0
+GOOGL, avg price: 2236.6503333333335, avg volume: 1916796.6333333333
+HON, avg price: 188.75585, avg volume: 3002361.8333333335
+IDXX, avg price: 359.68149999999997, avg volume: 660126.2
+ILMN, avg price: 220.467, avg volume: 1635673.7666666666
+INTU, avg price: 387.73783333333336, avg volume: 2108589.2
+ISRG, avg price: 212.5495, avg volume: 2001445.1
+JBHT, avg price: 166.85166666666666, avg volume: 785121.2666666667
+KLAC, avg price: 340.12233333333336, avg volume: 1368046.1
+LBRDK, avg price: 117.553, avg volume: 1126578.6666666667
+LPLA, avg price: 187.56633333333332, avg volume: 915399.8333333334
+LRCX, avg price: 476.95816666666667, avg volume: 1248980.0
+MAR, avg price: 158.52216666666666, avg volume: 2484577.3666666667
+MASI, avg price: 136.07016666666667, avg volume: 834031.9666666667
+MDB, avg price: 260.047, avg volume: 1989975.3333333333
+MIDD, avg price: 139.078, avg volume: 568201.8666666667
+MKSI, avg price: 113.777, avg volume: 579116.4333333333
+MRNA, avg price: 135.92783333333333, avg volume: 5721142.1
+MSFT, avg price: 260.1131, avg volume: 30506388.633333333
+NDAQ, avg price: 150.75466666666668, avg volume: 1041860.4666666667
+NFLX, avg price: 186.11598333333333, avg volume: 9626436.5
+NTRS, avg price: 103.09166666666667, avg volume: 933798.8666666667
+NVDA, avg price: 172.47216666666668, avg volume: 56023153.1
+ODFL, avg price: 251.7, avg volume: 969387.3666666667
+ORLY, avg price: 617.5063333333334, avg volume: 636732.1333333333
+PANW, avg price: 493.5971666666667, avg volume: 1805373.9333333333
+PAYX, avg price: 120.065, avg volume: 1803607.6333333333
+PEP, avg price: 165.11581666666666, avg volume: 5742855.566666666
+PODD, avg price: 210.015, avg volume: 561525.2666666667
+PTC, avg price: 110.462, avg volume: 700406.2333333333
+QCOM, avg price: 132.47525666666667, avg volume: 10088180.1
+QRVO, avg price: 103.50966666666667, avg volume: 1497450.4333333333
+REGN, avg price: 624.3983333333333, avg volume: 757729.0
+RGLD, avg price: 113.037, avg volume: 567770.3666666667
+SBAC, avg price: 324.473, avg volume: 747410.7
+SBNY, avg price: 196.193, avg volume: 1128469.8333333333
+SGEN, avg price: 147.148, avg volume: 1637416.1333333333
+SIVB, avg price: 442.22, avg volume: 620880.6666666666
+SNPS, avg price: 305.18833333333333, avg volume: 1031582.6333333333
+SWAV, avg price: 171.962, avg volume: 751938.0666666667
+SWKS, avg price: 101.02433333333333, avg volume: 2167529.033333333
+TER, avg price: 100.34466666666667, avg volume: 1764597.6
+TMUS, avg price: 131.229, avg volume: 4392418.933333334
+TROW, avg price: 119.334, avg volume: 1791838.5666666667
+TSCO, avg price: 191.98466666666667, avg volume: 1315949.8
+TSLA, avg price: 705.9221666666666, avg volume: 32096466.633333333
+TTEK, avg price: 129.12933333333334, avg volume: 596019.2
+TTWO, avg price: 124.84533333333333, avg volume: 3810555.7333333334
+TXN, avg price: 164.46016666666668, avg volume: 5747211.233333333
+ULTA, avg price: 394.09433333333334, avg volume: 1018380.7
+UTHR, avg price: 218.023, avg volume: 571361.2333333333
+VRSK, avg price: 169.187, avg volume: 905716.2333333333
+VRSN, avg price: 168.17033333333333, avg volume: 775255.5333333333
+VRTX, avg price: 265.199, avg volume: 1743409.2666666666
+WDAY, avg price: 155.54066666666668, avg volume: 4002714.6666666665
+ZBRA, avg price: 320.42333333333335, avg volume: 503958.2
+ZM, avg price: 105.54212666666666, avg volume: 6650484.433333334
+ZS, avg price: 148.82633333333334, avg volume: 2804689.8666666667
+
+Filter: PMratio and Delta Gain
+MRNA, PMratio: 4.5, Delta Gain: 1.5248776846016028, Expected Value: 1.9566376899633522, CO Strategy: +
+MDB, PMratio: 1.6666666666666667, Delta Gain: 1.8111723153755794, Expected Value: 1.8040567599312989, CO Strategy: +
+ENPH, PMratio: 1.5, Delta Gain: 2.296331264375701, Expected Value: 1.69287375808551, CO Strategy: +
+UTHR, PMratio: 1.5, Delta Gain: 2.4124624754229025, Expected Value: 1.6594335128948832, CO Strategy: +
+LPLA, PMratio: 2.0, Delta Gain: 1.6317648403868192, Expected Value: 1.3895201152937902, CO Strategy: +
+CDNS, PMratio: 2.25, Delta Gain: 1.2949675431544412, Expected Value: 1.0909727474653446, CO Strategy: +
+
+Final List
+UTHR, PMratio: 1.5, Delta Gain: 2.4124624754229025, Expected Value: 1.6594335128948832, CO Strategy: +, Today CO: 1.079999999999984, Invest: Y
+CDNS, PMratio: 2.25, Delta Gain: 1.2949675431544412, Expected Value: 1.0909727474653446, CO Strategy: +, Today CO: 0.4399999999999977, Invest: Y
