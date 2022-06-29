@@ -36,10 +36,10 @@ tentative = os.path.join(cwd, 'tickers/tentative', '{}.txt'.format(today_string)
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 bargraph = os.path.join(cwd, 'analysis/open_close/bargraph')
 
-price_limit = 100
+price_limit = 50
 volume_limit = 500000
-pmratio_limit = 1.5
-deltagain_limit = 1.0
+pmratio_limit = 2.0
+deltagain_limit = 0.5
 
 limit = 30
 
@@ -163,7 +163,7 @@ def close_open_plus_minus_bargraph(ticker, df):
 	plt.close()
 
 def rank_tentative():
-	tentative_list.sort(key = lambda x: x[3], reverse = True)
+	tentative_list.sort(key = lambda x: x[1], reverse = True)
 
 def pmratio_deltagain():
 
