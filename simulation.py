@@ -27,10 +27,10 @@ simulation = os.path.join(cwd, 'simulation', '{}.txt'.format(today_string))
 simulation_graph = os.path.join(cwd, 'simulation', '{}.png'.format(today_string))
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 
-price_limit = 100
+price_limit = 50
 volume_limit = 500000
-pmratio_limit = 1.5
-deltagain_limit = 1.0
+pmratio_limit = 2.0
+deltagain_limit = 0.5
 
 sql = """
 		SELECT * FROM daily 
@@ -83,53 +83,58 @@ def high_price_volume():
 
 def close_open_filter(ticker, df):
 
-	open_close = ((df['close'] - df['open'])/df['open']) * 100
+	try:
 
-	co_plus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
-	co_minus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
+		open_close = ((df['close'] - df['open'])/df['open']) * 100
 
-	i = topindex
-	while i < bottomindex - 1:
-		# classifying based on whether close_open is positive or negative
-		close_open = (df['open'][i] - df['close'][i+1]) > 0
-		if close_open:
-			co_plus['y'].append(open_close[i])
-			# given co+, classify if oc is + or -
-			co_plus['count'] += 1
-			if open_close[i] > 0:
-				co_plus['oc+'].append(open_close[i])
-				co_plus['x+'].append(co_plus['count'])
+		co_plus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
+		co_minus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
+
+		i = topindex
+		while i < bottomindex - 1:
+			# classifying based on whether close_open is positive or negative
+			close_open = (df['open'][i] - df['close'][i+1]) > 0
+			if close_open:
+				co_plus['y'].append(open_close[i])
+				# given co+, classify if oc is + or -
+				co_plus['count'] += 1
+				if open_close[i] > 0:
+					co_plus['oc+'].append(open_close[i])
+					co_plus['x+'].append(co_plus['count'])
+				else:
+					co_plus['oc-'].append(open_close[i])
+					co_plus['x-'].append(co_plus['count'])
 			else:
-				co_plus['oc-'].append(open_close[i])
-				co_plus['x-'].append(co_plus['count'])
-		else:
-			co_minus['y'].append(open_close[i])
-			# given co-, classify if oc is + or -
-			co_minus['count'] += 1
-			if open_close[i] > 0:
-				co_minus['oc+'].append(open_close[i])
-				co_minus['x+'].append(co_minus['count'])
-			else:
-				co_minus['oc-'].append(open_close[i])
-				co_minus['x-'].append(co_minus['count'])
+				co_minus['y'].append(open_close[i])
+				# given co-, classify if oc is + or -
+				co_minus['count'] += 1
+				if open_close[i] > 0:
+					co_minus['oc+'].append(open_close[i])
+					co_minus['x+'].append(co_minus['count'])
+				else:
+					co_minus['oc-'].append(open_close[i])
+					co_minus['x-'].append(co_minus['count'])
 
-		i += 1
+			i += 1
 
-	above_mean = statistics.mean(co_plus['oc+'])
-	below_mean = statistics.mean(co_plus['oc-'])
-	deltagain = above_mean - abs(below_mean)
-	pmratio = len(co_plus['oc+']) / len(co_plus['oc-'])
-	expectedvalue = ((len(co_plus['oc+'])/co_plus['count'])*above_mean) - ((len(co_plus['oc-'])/co_plus['count'])*abs(below_mean))
-	if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
-		tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '+', 0 ,None])
+		above_mean = statistics.mean(co_plus['oc+'])
+		below_mean = statistics.mean(co_plus['oc-'])
+		deltagain = above_mean - abs(below_mean)
+		pmratio = len(co_plus['oc+']) / len(co_plus['oc-'])
+		expectedvalue = ((len(co_plus['oc+'])/co_plus['count'])*above_mean) - ((len(co_plus['oc-'])/co_plus['count'])*abs(below_mean))
+		if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
+			tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '+', 0 ,None])
 
-	above_mean = statistics.mean(co_minus['oc+'])
-	below_mean = statistics.mean(co_minus['oc-'])
-	deltagain = above_mean - abs(below_mean)
-	pmratio = len(co_minus['oc+']) / len(co_minus['oc-'])
-	expectedvalue = ((len(co_minus['oc+'])/co_minus['count'])*above_mean) - ((len(co_minus['oc-'])/co_minus['count'])*abs(below_mean))
-	if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
-		tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '-', 0, None])
+		above_mean = statistics.mean(co_minus['oc+'])
+		below_mean = statistics.mean(co_minus['oc-'])
+		deltagain = above_mean - abs(below_mean)
+		pmratio = len(co_minus['oc+']) / len(co_minus['oc-'])
+		expectedvalue = ((len(co_minus['oc+'])/co_minus['count'])*above_mean) - ((len(co_minus['oc-'])/co_minus['count'])*abs(below_mean))
+		if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
+			tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '-', 0, None])
+
+	except:
+		print('ERROR')
 	
 def rank_tentative():
 	# tentative_list.sort(key = lambda x: x[3], reverse = True)
@@ -178,7 +183,6 @@ def invest(money):
 
 	if money > 0:
 
-		# split #1 = 50%, #2 = 30%, #1 = 20%
 		usable = money * .9
 		reserve = money * .1
 		split = [.5, .3, .2]
@@ -211,7 +215,8 @@ def invest(money):
 				temp['open'] = open_price
 				temp['close'] = close_price
 
-				qtybought = usable * split[i] // open_price
+				# qtybought = (usable * (1/3))  // open_price
+				qtybought = (usable * split[i])  // open_price
 
 				bought = qtybought * open_price
 				sold = qtybought * close_price
@@ -253,7 +258,8 @@ def invest(money):
 				temp['open'] = open_price
 				temp['close'] = close_price
 
-				qtybought = usable * split[i] // open_price
+				# qtybought = (usable * (1/len(final)))  // open_price
+				qtybought = (usable * split[i])  // open_price
 
 				bought = qtybought * open_price
 				sold = qtybought * close_price
