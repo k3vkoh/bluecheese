@@ -29,8 +29,8 @@ ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 
 price_limit = 50
 volume_limit = 500000
-pmratio_limit = 2.0
-deltagain_limit = 0.5
+high_limit = 4
+high_len_limit = 4
 
 sql = """
 		SELECT * FROM daily 
@@ -41,11 +41,11 @@ totaldf = pd.read_sql(sql, engine)
 
 rowcount = totaldf.shape[0]
 
-# [ticker, plus/minus, deltagain, expected value, co strategy, today co, invest]
+# [ticker, high avg, co strategy, today co, invest]
 tentative_list = []
 final = []
 
-topindex = rowcount - 31
+topindex = rowcount - 10
 bottomindex = rowcount - 1
 
 day_count = 1
@@ -84,60 +84,38 @@ def high_price_volume():
 def close_open_filter(ticker, df):
 
 	try:
+		open_high = ((df['high'] - df['open'])/df['open']) * 100
 
-		open_close = ((df['close'] - df['open'])/df['open']) * 100
-
-		co_plus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
-		co_minus = {'y': [], 'x': [], 'oc+': [], 'x+': [], 'oc-': [], 'x-': [], 'count': 0}
+		co_plus = {'y': [], 'x': [], 'count': 0}
+		co_minus = {'y': [], 'x': [], 'count': 0}
 
 		i = topindex
 		while i < bottomindex - 1:
 			# classifying based on whether close_open is positive or negative
 			close_open = (df['open'][i] - df['close'][i+1]) > 0
 			if close_open:
-				co_plus['y'].append(open_close[i])
+				co_plus['y'].append(open_high[i])
 				# given co+, classify if oc is + or -
 				co_plus['count'] += 1
-				if open_close[i] > 0:
-					co_plus['oc+'].append(open_close[i])
-					co_plus['x+'].append(co_plus['count'])
-				else:
-					co_plus['oc-'].append(open_close[i])
-					co_plus['x-'].append(co_plus['count'])
 			else:
-				co_minus['y'].append(open_close[i])
+				co_minus['y'].append(open_high[i])
 				# given co-, classify if oc is + or -
 				co_minus['count'] += 1
-				if open_close[i] > 0:
-					co_minus['oc+'].append(open_close[i])
-					co_minus['x+'].append(co_minus['count'])
-				else:
-					co_minus['oc-'].append(open_close[i])
-					co_minus['x-'].append(co_minus['count'])
 
 			i += 1
 
-		above_mean = statistics.mean(co_plus['oc+'])
-		below_mean = statistics.mean(co_plus['oc-'])
-		deltagain = above_mean - abs(below_mean)
-		pmratio = len(co_plus['oc+']) / len(co_plus['oc-'])
-		expectedvalue = ((len(co_plus['oc+'])/co_plus['count'])*above_mean) - ((len(co_plus['oc-'])/co_plus['count'])*abs(below_mean))
-		if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
-			tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '+', 0 ,None])
+		high_avg = statistics.mean(co_plus['y'])
+		if high_avg >= high_limit and len(co_plus['y']) >= high_len_limit:
+			tentative_list.append([ticker, high_avg, '+', 0 ,None])
 
-		above_mean = statistics.mean(co_minus['oc+'])
-		below_mean = statistics.mean(co_minus['oc-'])
-		deltagain = above_mean - abs(below_mean)
-		pmratio = len(co_minus['oc+']) / len(co_minus['oc-'])
-		expectedvalue = ((len(co_minus['oc+'])/co_minus['count'])*above_mean) - ((len(co_minus['oc-'])/co_minus['count'])*abs(below_mean))
-		if deltagain >= deltagain_limit and pmratio >= pmratio_limit:
-			tentative_list.append([ticker, pmratio, deltagain, expectedvalue, '-', 0, None])
-
+		high_avg = statistics.mean(co_minus['y'])
+		if high_avg >= high_limit and len(co_minus['y']) >= high_len_limit:
+			tentative_list.append([ticker, high_avg, '-', 0, None])
 	except:
+		print(ticker)
 		print('ERROR')
 	
 def rank_tentative():
-	# tentative_list.sort(key = lambda x: x[3], reverse = True)
 	tentative_list.sort(key = lambda x: x[1], reverse = True)
 
 def co_today():
@@ -158,24 +136,24 @@ def co_today():
 		open_price = df['open'][topindex-1]
 		close_price = df['close'][topindex]
 		co = open_price - close_price
-		item[5] = co
-		if item[4] == '+':
+		item[3] = co
+		if item[2] == '+':
 			if co > 0:
-				item[6] = 'Y'
+				item[4] = 'Y'
 			else:
-				item[6] = 'N'
-		elif item[4] == '-':
+				item[4] = 'N'
+		elif item[2] == '-':
 			if co < 0:
-				item[6] = 'Y'
+				item[4] = 'Y'
 			else:
-				item[6] = 'N'
+				item[4] = 'N'
 
 
 def final_list():
 
 	global final
 
-	filtered = filter(lambda item: item[6] == 'Y', tentative_list)
+	filtered = filter(lambda item: item[4] == 'Y', tentative_list)
 
 	final = list(filtered)
 
@@ -193,13 +171,11 @@ def invest(money):
 			i = 0
 			while i < 3:
 				ticker = final[i][0].strip()  
-				temp = {'ticker': None, 'open': None, 'close': None, 'bought': None, 'sold': None, 'gain/loss': None, 'PMratio': None, 'Deltagain': None, 'Expected Value': None, 'CO Strategy': None, 'Today CO': None}
+				temp = {'ticker': None, 'open': None, 'high': None, 'close': None,'sell': None, 'bought': None, 'sold': None, 'gain/loss': None, 'average high': None, 'CO Strategy': None, 'Today CO': None}
 				temp['ticker'] = ticker
-				temp['PMratio'] = final[i][1]
-				temp['Deltagain'] = final[i][2]
-				temp['Expected Value'] = final[i][3]
-				temp['CO Strategy'] = final[i][4]
-				temp['Today CO'] = final[i][5]
+				temp['average high'] = final[i][1]
+				temp['CO Strategy'] = final[i][2]
+				temp['Today CO'] = final[i][3]
 
 				sql = """
 				SELECT * FROM daily 
@@ -210,16 +186,28 @@ def invest(money):
 				df = pd.read_sql(sql, engine)
 
 				open_price = df['open'][topindex-1]
+				high_price = df['high'][topindex-1]
 				close_price = df['close'][topindex-1]
+				# sell_price = (1 + ((final[i][1]/100)/2)) * open_price
+				sell_price = (1 + ((high_limit/100)/2)) * open_price
 
 				temp['open'] = open_price
+				temp['high'] = high_price
 				temp['close'] = close_price
+				temp['sell'] = sell_price
 
 				# qtybought = (usable * (1/3))  // open_price
 				qtybought = (usable * split[i])  // open_price
 
 				bought = qtybought * open_price
-				sold = qtybought * close_price
+
+				sold = 0
+				if high_price > sell_price:
+					sold = qtybought * sell_price
+					print('sold via sell price')
+				else: 
+					sold = qtybought * close_price
+					print('sold via close price')
 
 				gainorloss = sold - bought
 
@@ -236,13 +224,11 @@ def invest(money):
 			i = 0
 			while i < len(final):
 				ticker = final[i][0].strip()  
-				temp = {'ticker': None, 'open': None, 'close': None, 'bought': None, 'sold': None, 'gain/loss': None, 'PMratio': None, 'Deltagain': None, 'Expected Value': None, 'CO Strategy': None, 'Today CO': None}
+				temp = {'ticker': None, 'open': None, 'high': None, 'close': None,'sell': None, 'bought': None, 'sold': None, 'gain/loss': None, 'average high': None, 'CO Strategy': None, 'Today CO': None}
 				temp['ticker'] = ticker
-				temp['PMratio'] = final[i][1]
-				temp['Deltagain'] = final[i][2]
-				temp['Expected Value'] = final[i][3]
-				temp['CO Strategy'] = final[i][4]
-				temp['Today CO'] = final[i][5]
+				temp['average high'] = final[i][1]
+				temp['CO Strategy'] = final[i][2]
+				temp['Today CO'] = final[i][3]
 
 				sql = """
 				SELECT * FROM daily 
@@ -253,16 +239,28 @@ def invest(money):
 				df = pd.read_sql(sql, engine)
 
 				open_price = df['open'][topindex-1]
+				high_price = df['high'][topindex-1]
 				close_price = df['close'][topindex-1]
+				# sell_price = (1 + ((final[i][1]/100)/2)) * open_price
+				sell_price = (1 + ((high_limit/100)/2)) * open_price
 
 				temp['open'] = open_price
+				temp['high'] = high_price
 				temp['close'] = close_price
+				temp['sell'] = sell_price
 
-				# qtybought = (usable * (1/len(final)))  // open_price
+				# qtybought = (usable * (1/3))  // open_price
 				qtybought = (usable * split[i])  // open_price
 
 				bought = qtybought * open_price
-				sold = qtybought * close_price
+
+				sold = 0
+				if high_price > sell_price:
+					sold = qtybought * sell_price
+					print('sold via sell price')
+				else: 
+					sold = qtybought * close_price
+					print('sold via close price')
 
 				gainorloss = sold - bought
 
@@ -280,7 +278,7 @@ def invest(money):
 
 			f.write('\nDay {}\n'.format(day_count))
 			for item in results:
-				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}, PMratio: {}, Deltagain: {}, Expected Value: {}, CO Strategy: {}, Today CO: {}\n'.format(item['ticker'], item['open'], item['close'], item['bought'], item['sold'], item['gain/loss'], item['PMratio'], item['Deltagain'], item['Expected Value'], item['CO Strategy'], item['Today CO']))
+				f.write('{}, Open: {}, High: {}, Close: {}, Sell: {}, Bought: {}, Sold: {}, Gain/Loss: {}, Average High: {}, CO Strategy: {}, Today CO: {}\n'.format(item['ticker'], item['open'], item['high'], item['close'], item['sell'], item['bought'], item['sold'], item['gain/loss'], item['average high'], item['CO Strategy'], item['Today CO']))
 				money += item['gain/loss']
 
 			f.write('Total Gains/Losses: {}, Current Balance: {}\n'.format(sum(gains), money))
