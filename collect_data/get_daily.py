@@ -100,7 +100,7 @@ def extract(data, ticker):
 			
 			return "{} done\n".format(ticker)
 
-		except exception as e:
+		except Exception as e:
 			return "{} error: {}\n".format(ticker, e)
 			errors += 1
 
