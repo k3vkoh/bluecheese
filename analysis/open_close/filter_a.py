@@ -1,12 +1,6 @@
 # filter a:
 # compiles a list of tickers that meet the following criteria:
-# - price >= $100
-# - volume >= 1000000
-# - split close_open + and - and then find the mean gain and loss of each
-# - then draw the graphs
-# - analyze when co+ the ratio of plus and minus is plus/minus >= 1.5 and the avg gain is 1% > |avg loss|
-# - analyze when co- the ratio of plus and minus is plus/minus >= 1.5 and the avg gain is 1% > |avg loss|
-# - or we can do based on discrete random variable expected value ? 
+ 
 
 import pandas as pd 
 from sqlalchemy.types import Text
@@ -43,7 +37,7 @@ deltagain_limit = 0.5
 
 limit = 30
 
-# [ticker, plus/minus, deltagain, expected value, co strategy, today co, invest]
+# [ticker, plus/minus, deltagain, expected value]
 tentative_list = []
 
 def get_data(ticker):
@@ -58,7 +52,7 @@ def get_data(ticker):
 
 	return df
 
-def high_price_volume():
+def price_filter():
 
 	with open(tentative, 'w') as f, open(ticker_list, 'r') as t:
 
