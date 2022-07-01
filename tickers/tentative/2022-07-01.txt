@@ -1,0 +1,2 @@
+Filter: Price Filter
+AAPL, avg price: 136.95066666666668
