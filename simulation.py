@@ -38,7 +38,6 @@ totaldf = pd.read_sql(sql, engine)
 
 rowcount = totaldf.shape[0]
 
-# [ticker, plus/minus, deltagain, expected value, co strategy, today co, invest]
 tentative_list = []
 final = []
 
@@ -46,6 +45,8 @@ topindex = rowcount - 6
 bottomindex = rowcount - 1
 
 day_count = 1
+plus_days = 0
+neg_days = 0
 
 def get_data(ticker):
 	sql = """
@@ -62,8 +63,7 @@ def high_price_volume():
 
 	with open(ticker_list, 'r') as t:
 
-		# for temp in t:
-		for temp in ['AAPL']:
+		for temp in t:
 			ticker = temp.strip()
 
 			try:
@@ -97,6 +97,8 @@ def rank_tentative():
 def invest(money):
 
 	rank_tentative()
+
+	global plus_days, neg_days
 
 	if money > 0:
 
@@ -135,6 +137,11 @@ def invest(money):
 
 				gainorloss = sold - bought
 
+				if gainorloss > 0:
+					plus_days += 1
+				else:
+					neg_days += 1
+
 				gains.append(gainorloss)
 
 				temp['bought'] = bought
@@ -172,6 +179,11 @@ def invest(money):
 				sold = qtybought * close_price
 
 				gainorloss = sold - bought
+
+				if gainorloss > 0:
+					plus_days += 1
+				else:
+					neg_days += 1
 
 				gains.append(gainorloss)
 
@@ -216,6 +228,13 @@ def run():
 		day_count += 1
 		tentative_list = []
 		final = []
+
+	print('net change', money - initial)
+	print('high', max(balance_sheet))
+	print('low', min(balance_sheet))
+	print('positive days', plus_days/(plus_days + neg_days))
+	print('negative days', neg_days/(plus_days + neg_days))
+
 
 	plt.plot(range(0, len(balance_sheet)), balance_sheet)
 	plt.title('Gain for Open Close Method')
