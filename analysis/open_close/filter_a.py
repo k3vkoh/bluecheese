@@ -27,19 +27,14 @@ today_string = today.strftime('%Y-%m-%d')
 
 cwd = os.getcwd()
 
-
 tentative = os.path.join(cwd, 'tickers/tentative', '{}.txt'.format(today_string))
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 bargraph = os.path.join(cwd, 'analysis/open_close/bargraph')
 
 price_limit = 50
-# volume_limit = 500000
-# pmratio_limit = 2.0
-# deltagain_limit = 0.5
 
 limit = 5
 
-# [ticker, plus/minus, deltagain, expected value]
 tentative_list = []
 
 def get_data(ticker):
@@ -77,32 +72,27 @@ def price_filter():
 					f.flush()
 					calculate(ticker, df)
 
-def find_outliers(data):
-	dataset = sorted(data)
-	q1, q3 = np.percentile(dataset,[25,75])
-	iqr = q3 - q1
-	upper = q3 + (1.5 * iqr)
-	lower = q1 - (1.5 * iqr)
-	return [x >= lower and x <= upper for x in data]
-
 def calculate(ticker, df):
 
 	# y is equal to open_close values
-	y_initial = ((df['close'] - df['open'])/df['open']) * 100
-	y = y_initial[find_outliers(y_initial)]
-	x = np.arange(0, len(y))
-	A = np.array([x, np.ones(len(x))])
-	results = np.linalg.lstsq(A.T, y, rcond=None)
-	w = results[0]
-	r2 = results[1]
+	y = ((df['close'] - df['open'])/df['open']) * 100
+	x = range(0, len(y))
 
-	if w[0] > 0 and r2 < 10:
-		tentative_list.append([ticker, w[0], r2])
+	avg = statistics.mean(y)
 
-	# regression line
-	line = w[0]*x + w[1]  
-	plt.plot(x, line, 'r-')
-	plt.plot(x, y, 'o')
+	# consecutive = [value < 0 for value in y]
+	# if False not in consecutive:
+	# 	tentative_list.append(ticker)
+
+	if avg >= 0.5:
+		tentative_list.append([ticker, avg])
+	
+	plt.plot(x, y)
+	# plt.bar(positive['x'], positive['y'], color = 'Green')
+	# plt.bar(negative['x'], negative['y'], color = 'Red')
+	# plt.plot([0, len(x)-1], [high_avg, high_avg], 'g+')
+	plt.plot([0, len(x)-1], [avg, avg], 'k--')
+	# plt.plot([0, len(x)-1], [low_avg, low_avg], 'r-')
 
 	plt.savefig(os.path.join(bargraph, '{}.png'.format(ticker)))
 
@@ -113,9 +103,9 @@ def rank_tentative():
 
 	with open(tentative, 'a') as f:
 
-		f.write('\nFilter: Slope and R2\n')
+		f.write('\nFilter: Avg\n')
 		for item in tentative_list:
-			f.write('{}, Slope: {}, Sum of R2: {}\n'.format(item[0], item[1], item[2]))
+			f.write('{}, Avg: {}\n'.format(item[0], item[1]))
 
 
 def run():
