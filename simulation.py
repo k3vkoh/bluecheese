@@ -41,7 +41,7 @@ rowcount = totaldf.shape[0]
 tentative_list = []
 final = []
 
-topindex = rowcount - 6
+topindex = rowcount - 31
 bottomindex = rowcount - 1
 
 day_count = 1
