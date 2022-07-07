@@ -9,6 +9,8 @@
 
 
 # when you look to invest make sure you look at one more day than the average
+
+# try with ranking or try with buy one of each
  
 import pandas as pd 
 from sqlalchemy.types import Text
@@ -113,7 +115,20 @@ def gogo(df, magic_number):
 
 	return True
 
+def invest(investable, ticker, openp, closep):
 
+	if investable > 0:
 
+		result = {'ticker': None, 'open': None, 'close': None, 'bought': None, 'sold': None, 'gain/loss': None}
+		result['ticker'] = ticker
+		result['open'] = openp
+		result['close'] = closep
+		qtybought = investable // openp
+		bought = qtybought * openp
+		sold = qtybought * closep
+		gainorloss = sold - bought
+		result['bought'] = bought
+		result['sold'] = sold 
+		result['gain/loss'] = gainorloss
 
-
+		return result
