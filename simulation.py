@@ -96,10 +96,7 @@ def thumbsup():
 			if df.shape[0] != limit:
 				continue
 
-			tentative_list = fila.consecutive(ticker, df)
-			filtered_list = fila.find_outliers(tentative_list)
-			indicator = fila.indicator(filtered_list)
-			thumbsup = fila.gogo(df, indicator)
+			thumbsup = fila.gogo(df)
 			if thumbsup:
 				final.append(ticker)
 
