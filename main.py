@@ -1,5 +1,4 @@
 import collect_data.get_daily as daily
-import analysis.open_close.filter_a as fila 
 
 from datetime import datetime
 import os
@@ -20,8 +19,6 @@ def main():
 
 	if date != today_string:
 		daily.main()
-
-	# fila.run()
 
 if __name__ == '__main__':
 	main()
