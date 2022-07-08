@@ -25,8 +25,8 @@ today_string = today.strftime('%Y-%m-%d')
 cwd = os.getcwd()
 
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
-tentative = os.path.join(cwd, 'tickers/tentative', '{}.txt'.format(today_string))
-bargraph = os.path.join(cwd, 'analysis/open_close/bargraph')
+tentative = os.path.join(cwd, 'results', '{}.txt'.format(today_string))
+bargraph = os.path.join(cwd, 'results', '{}.png'.format(today_string))
 
 limit = 30
 
@@ -73,10 +73,6 @@ def get_data(ticker):
 
 
 def thumbsup():
-
-	files = glob.glob(os.path.join(bargraph, '*'))
-	for f in files:
-		os.remove(f)
 
 	final = []
 
@@ -164,7 +160,7 @@ def main():
 		plt.xlabel('Days')
 		plt.ylabel('Balance')
 
-		plt.savefig(os.path.join(bargraph, '{}.png'.format(today_string)))
+		plt.savefig(bargraph)
 
 		plt.close()
 
