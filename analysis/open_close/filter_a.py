@@ -58,8 +58,12 @@ def consecutive(ticker, df):
 				sign_change = True
 				if consecutive_pos:
 					tentative_list.append([ticker, '+', consecutive_pos, avg_change])
+					if i - 1 == 0:
+						tentative_list.append([ticker, '-', 1, avg_change])
 				else:
 					tentative_list.append([ticker, '-', consecutive_neg, avg_change])
+					if i -1 == 0:
+						tentative_list.append([ticker, '+', 1, avg_change])
 			else:
 				i -= 1
 				if i == 0:

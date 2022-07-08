@@ -83,7 +83,8 @@ def thumbsup():
 	with open(ticker_list, 'r') as t:
 
 		# for temp in ['AAPL']:
-		for temp in t:
+		for temp in ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'ABNB']:
+		# for temp in t:
 
 			ticker = temp.strip()
 
@@ -122,8 +123,10 @@ def main():
 		while topindex > 0:
 			print('day', day_count)
 			f.write('\nDay {}\n'.format(day_count))
+			f.flush()
 			final = thumbsup()
 			investable = money * .9
+			totalgain = 0
 			for ticker in final:
 				sql = """
 						SELECT * FROM daily 
@@ -133,13 +136,15 @@ def main():
 
 				df = pd.read_sql(sql, engine)
 				result = fila.invest(investable * (1/len(final)), ticker, df['open'][topindex-1],  df['close'][topindex-1])
-				money += result['gain/loss']
-				if result['gain/loss'] > 0:
-					plus_days += 1
-				elif result['gain/loss'] < 0:
-					neg_days += 1
+				totalgain += result['gain/loss']
 				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}\n'.format(result['ticker'], result['open'], result['close'], result['bought'], result['sold'], result['gain/loss']))
+				f.flush()
 
+			money += totalgain
+			if totalgain > 0:
+				plus_days += 1
+			elif totalgain < 0:
+				neg_days += 1
 			print('invested')
 			print('balance', money)
 			balance_sheet.append(money)
@@ -150,12 +155,12 @@ def main():
 		print('net change', money - initial)
 		print('high', max(balance_sheet))
 		print('low', min(balance_sheet))
-		try:
-			print('positive days', plus_days/(plus_days + neg_days))
-			print('negative days', neg_days/(plus_days + neg_days))
-		except:
-			pass
+		# print('positive days', plus_days/(plus_days + neg_days))
+		# print('negative days', neg_days/(plus_days + neg_days))
+		print('positive days', plus_days)
+		print('negative days', neg_days)
 		f.write('Net Change: {}, Current Balance: {}\n'.format(money - initial, money))
+		f.flush()
 
 		plt.plot(range(0, len(balance_sheet)), balance_sheet)
 		plt.title('Gain for Open Close Method')
