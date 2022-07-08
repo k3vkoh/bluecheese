@@ -3,3 +3,4 @@ these tickers are from https://www.nasdaq.com/market-activity/stocks/screener
 the filters applied are:
 
 - NASDAQ
+- NYSE

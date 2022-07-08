@@ -10,4 +10,6 @@ collect_data/*.txt
 
 __pycache__
 
-simulation/*
+rank/tracker/*.txt
+
+rank/log.txt
