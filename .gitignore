@@ -4,6 +4,8 @@ tickers/tracker/*.txt
 
 collect_data/*.txt
 
+collect_data/tracker/*.txt
+
 *.db
 
 *.DS_Store
