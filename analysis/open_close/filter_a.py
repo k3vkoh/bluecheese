@@ -1,6 +1,8 @@
 # filter a:
 
 # try with ranking or try with buy one of each
+
+# check the ratio of + and - days if it is + than invest when it is 2 or 3 consecutive days
  
 import pandas as pd 
 from sqlalchemy.types import Text
