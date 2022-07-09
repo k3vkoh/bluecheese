@@ -34,9 +34,19 @@ def add_to_log(date):
 		f.write(date + '\n' + content)
 		f.flush()
 
-def collect():
-
+def download(tickers):
 	global dataframe, errors
+
+	try:
+		data = yf.download(tickers, start = start_string, end = today_string)
+		dataframe = pd.concat([dataframe, data])
+		return "{} done\n".format(tickers)
+	except:
+		errors += 1
+		return "{} error\n".format(tickers)
+
+
+def collect():
 
 	print('TimeFrame')
 	print(start_string)
@@ -45,37 +55,35 @@ def collect():
 
 	with open(ticker_list, 'r') as file:
 
-		for temp in file:
+		count = 0
+		tickers = ''
+		while True:
+			line = file.readline()
 
-			ticker = temp.strip()
-			
-			message = None
+			if not line:
+				tickers = tickers.strip()
+				message = download(tickers)
+				track.write(message)
+				track.flush()
+				break
 
-			try:
+			count += 1
 
-				data = yf.download(ticker, start = start_string, end = today_string)
-				data['Ticker'] = ticker
+			tickers = tickers + ' ' + line.strip() 
 
-				dataframe = pd.concat([dataframe, data])
-
-				message = "{} done\n".format(ticker)
-
-			except:
-
-				errors += 1
-				message = "{} error\n".format(ticker)
-
-			track.write(message)
-			track.flush()
-
-	track.write('errors: {}'.format(errors))
+			if count == 50:
+				tickers = tickers.strip()
+				message = download(tickers)
+				track.write(message)
+				track.flush()
+				count = 0 
+				tickers = ''
 
 	df = pd.DataFrame(data = dataframe)
-	df.to_sql('daily', engine, if_exists = 'append', index = False)
+	# df.to_sql('daily', engine, if_exists = 'append', index = False)
 
-	add_to_log(today_string)
+	# add_to_log(today_string)
 	print("DONE")
-
 
 def main():
 	collect()
