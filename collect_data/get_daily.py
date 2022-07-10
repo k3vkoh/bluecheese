@@ -34,12 +34,16 @@ def add_to_log(date):
 		f.write(date + '\n' + content)
 		f.flush()
 
-def download(tickers):
+def download(tickers, ticlist):
 	global dataframe, errors
 
 	try:
-		data = yf.download(tickers, start = start_string, end = today_string)
-		dataframe = pd.concat([dataframe, data])
+		data = yf.download(tickers, start = start_string, end = today_string, group_by = 'ticker')
+		for ticker in ticlist:
+			temp = data.copy(deep = True)
+			temp = temp[ticker]
+			temp['Ticker'] = ticker
+			dataframe = pd.concat([dataframe, temp])
 		return "{} done\n".format(tickers)
 	except:
 		errors += 1
@@ -57,32 +61,35 @@ def collect():
 
 		count = 0
 		tickers = ''
+		ticlist = []
 		while True:
 			line = file.readline()
 
 			if not line:
 				tickers = tickers.strip()
-				message = download(tickers)
+				message = download(tickers, ticlist)
 				track.write(message)
 				track.flush()
 				break
 
 			count += 1
+			ticker = line.strip()
+			tickers = tickers + ' ' + ticker 
+			ticlist.append(ticker)
 
-			tickers = tickers + ' ' + line.strip() 
-
-			if count == 50:
+			if count == 100:
 				tickers = tickers.strip()
-				message = download(tickers)
+				message = download(tickers, ticlist)
 				track.write(message)
 				track.flush()
 				count = 0 
 				tickers = ''
+				ticlist = []
 
 	df = pd.DataFrame(data = dataframe)
-	# df.to_sql('daily', engine, if_exists = 'append', index = False)
+	df.to_sql('daily', engine, if_exists = 'append', index = False)
 
-	# add_to_log(today_string)
+	add_to_log(today_string)
 	print("DONE")
 
 def main():
