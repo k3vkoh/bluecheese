@@ -43,6 +43,7 @@ def download(tickers, ticlist):
 			temp = data.copy(deep = True)
 			temp = temp[ticker]
 			temp['Ticker'] = ticker
+			temp['Date'] = temp.index
 			dataframe = pd.concat([dataframe, temp])
 		return "{} done\n".format(tickers)
 	except:
