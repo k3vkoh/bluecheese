@@ -17,3 +17,5 @@ rank/tracker/*.txt
 rank/log.txt
 
 results/*
+
+rank/*
