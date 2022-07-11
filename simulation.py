@@ -33,7 +33,6 @@ limit = 30
 sql = """
 		SELECT * FROM daily 
 		WHERE Ticker = 'AAPL'
-		ORDER BY time DESC
 	"""
 
 data = pd.read_sql(sql, engine)
@@ -58,7 +57,7 @@ def get_data(ticker):
 	sql = """
 			SELECT * FROM daily 
 			WHERE Ticker = "{}"
-			ORDER BY time DESC
+			ORDER BY Date DESC
 		""".format(ticker)
 
 	df = pd.read_sql(sql, engine)
@@ -87,6 +86,7 @@ def thumbsup():
 			try:
 				df = get_data(ticker)
 			except:
+				print('error')
 				continue
 
 			if df.shape[0] != limit:
@@ -124,11 +124,11 @@ def main():
 				sql = """
 						SELECT * FROM daily 
 						WHERE Ticker = "{}"
-						ORDER BY time DESC
+						ORDER BY Date DESC
 					""".format(ticker)
 
 				df = pd.read_sql(sql, engine)
-				result = fila.invest(investable * (1/len(final)), ticker, df['open'][topindex-1],  df['close'][topindex-1])
+				result = fila.invest(investable * (1/len(final)), ticker, df['Open'][topindex-1],  df['Close'][topindex-1])
 				totalgain += result['gain/loss']
 				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}\n'.format(result['ticker'], result['open'], result['close'], result['bought'], result['sold'], result['gain/loss']))
 				f.flush()

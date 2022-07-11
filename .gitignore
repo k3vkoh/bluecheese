@@ -15,3 +15,5 @@ __pycache__
 rank/tracker/*.txt
 
 rank/log.txt
+
+results/*

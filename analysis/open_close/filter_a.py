@@ -30,7 +30,7 @@ def gogo(df):
 
 	count = 0
 	positive = False
-	open_close = df['close'] - df['open']
+	open_close = df['Close'] - df['Open']
 
 	while not positive:
 		if open_close[count] < 0:
