@@ -92,9 +92,15 @@ def thumbsup():
 			if df.shape[0] != limit:
 				continue
 
-			thumbsup = fila.gogo(df)
-			if thumbsup:
-				final.append(ticker)
+			result = fila.gogo(df)
+			count = result[0]
+			# if result[1] == 'plus' and result[0] < 3:
+			# 	final.append([ticker, count])
+			# elif result[1] == 'minus' and result[0] >= 4:
+			# 	final.append([ticker, count])
+
+			if result[1] == 'minus' and count >= 4:
+				final.append([ticker, count])
 
 	return final
 
@@ -120,7 +126,9 @@ def main():
 			final = thumbsup()
 			investable = money * .9
 			totalgain = 0
-			for ticker in final:
+			for value in final:
+				ticker = value[0]
+				count = value[1]
 				sql = """
 						SELECT * FROM daily 
 						WHERE Ticker = "{}"
@@ -128,9 +136,9 @@ def main():
 					""".format(ticker)
 
 				df = pd.read_sql(sql, engine)
-				result = fila.invest(investable * (1/len(final)), ticker, df['Open'][topindex-1],  df['Close'][topindex-1])
+				result = fila.invest(investable * (1/len(final)), ticker, df['Open'][topindex-1],  df['Close'][topindex-1], count)
 				totalgain += result['gain/loss']
-				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}\n'.format(result['ticker'], result['open'], result['close'], result['bought'], result['sold'], result['gain/loss']))
+				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}, Count: {}\n'.format(result['ticker'], result['open'], result['close'], result['bought'], result['sold'], result['gain/loss'], result['count']))
 				f.flush()
 
 			money += totalgain

@@ -28,26 +28,52 @@ today_string = today.strftime('%Y-%m-%d')
 
 def gogo(df):
 
-	count = 0
-	positive = False
-	open_close = df['Close'] - df['Open']
+	# v1
+	# count = 0
+	# open_close = df['Close'] - df['Open']
 
-	while not positive:
-		if open_close[count] < 0:
+	# while True:
+	# 	if open_close[count] < 0:
+	# 		count += 1
+	# 	else:
+	# 		break
+
+	# return count
+
+	# v2
+	count = 0
+	open_close = df['Close'] - df['Open']
+	mode = None 
+	if open_close[count] > 0:
+		mode = 'plus'
+	elif open_close[count] < 0:
+		mode = 'minus'
+
+	while True:
+		if open_close[count] < 0 and mode == 'minus':
+			count += 1
+		elif open_close[count] > 0 and mode == 'plus':
 			count += 1
 		else:
-			positive = True
+			break
 
-	if count < 3:
-		return False
+	return [count, mode]
 
-	return True
+	# v3
+	# open_close = df['Close'] - df['Open']
+	# bullish = False
+	# bearish = False
+	# total = open_close.size
+	# pos_days = len([x > 0 for x in open_close])
+	# neg_days = total - pos_days
+	# if pos_days/total > 
 
-def invest(investable, ticker, openp, closep):
+
+def invest(investable, ticker, openp, closep, count):
 
 	if investable > 0:
 
-		result = {'ticker': None, 'open': None, 'close': None, 'bought': None, 'sold': None, 'gain/loss': None}
+		result = {'ticker': None, 'open': None, 'close': None, 'bought': None, 'sold': None, 'gain/loss': None, 'count': None}
 		result['ticker'] = ticker
 		result['open'] = openp
 		result['close'] = closep
@@ -58,5 +84,6 @@ def invest(investable, ticker, openp, closep):
 		result['bought'] = bought
 		result['sold'] = sold 
 		result['gain/loss'] = gainorloss
+		result['count'] = count
 
 		return result
