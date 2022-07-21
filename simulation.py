@@ -1,3 +1,5 @@
+# invest on 4 or more consecutive negative days
+
 import pandas as pd 
 from sqlalchemy.types import Text
 from sqlalchemy import create_engine
@@ -43,16 +45,6 @@ topindex = rowcount - 30
 bottomindex = rowcount -1
 
 def get_data(ticker):
-	# sql = """
-	# 		SELECT * FROM daily 
-	# 		WHERE Ticker = "{}"
-	# 		ORDER BY time DESC
-	# 		LIMIT {}
-	# 	""".format(ticker, limit)
-
-	# df = pd.read_sql(sql, engine)
-
-	# return df
 
 	sql = """
 			SELECT * FROM daily 
@@ -75,29 +67,25 @@ def thumbsup():
 
 	final = []
 
-	with open(ticker_list, 'r') as t:
+	for temp in ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'ABNB']:
 
-		# for temp in ['AAPL']:
-		for temp in ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'ABNB']:
-		# for temp in t:
+		ticker = temp.strip()
 
-			ticker = temp.strip()
+		try:
+			df = get_data(ticker)
+		except:
+			print('error')
+			continue
 
-			try:
-				df = get_data(ticker)
-			except:
-				print('error')
-				continue
+		if df.shape[0] != limit:
+			continue
 
-			if df.shape[0] != limit:
-				continue
+		result = fila.gogo(df)
+		count = result[0]
+		mode = result[1]
 
-			result = fila.gogo(df)
-			count = result[0]
-			mode = result[1]
-
-			if mode == 'minus' and count >= 4:
-				final.append([ticker, mode, count])
+		if mode == 'minus' and count >= 4:
+			final.append([ticker, mode, count])
 
 	return final
 
@@ -155,8 +143,6 @@ def main():
 		print('net change', money - initial)
 		print('high', max(balance_sheet))
 		print('low', min(balance_sheet))
-		# print('positive days', plus_days/(plus_days + neg_days))
-		# print('negative days', neg_days/(plus_days + neg_days))
 		print('positive days', plus_days)
 		print('negative days', neg_days)
 		f.write('Net Change: {}, Current Balance: {}\n'.format(money - initial, money))
