@@ -16,6 +16,6 @@ rank/tracker/*.txt
 
 rank/log.txt
 
-results/*
+results/sim/*
 
 rank/*

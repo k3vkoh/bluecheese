@@ -1,5 +1,7 @@
 # invest on 4 or more consecutive negative days
 
+# dynamic porfolio needs to be added
+
 import pandas as pd 
 from sqlalchemy.types import Text
 from sqlalchemy import create_engine
@@ -11,11 +13,12 @@ import numpy as np
 from scipy.stats import norm
 import statistics
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import os
 import requests
 import glob
+import math 
 
 import analysis.open_close.filter_a as fila 
 
@@ -27,40 +30,60 @@ today_string = today.strftime('%Y-%m-%d')
 cwd = os.getcwd()
 
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
-tentative = os.path.join(cwd, 'results', '{}.txt'.format(today_string))
-bargraph = os.path.join(cwd, 'results', '{}.png'.format(today_string))
-
-limit = 30
+sim_log = os.path.join(cwd, 'results', 'sim.txt')
+sim_image = os.path.join(cwd, 'results', 'sim.png')
+sim_results = os.path.join(cwd, 'results/sim', '{}.txt'.format(today_string))
 
 sql = """
 		SELECT * FROM daily 
 		WHERE Ticker = 'AAPL'
+		ORDER BY Date DESC
+		LIMIT 1
 	"""
 
 data = pd.read_sql(sql, engine)
 
-rowcount = data.shape[0]
+start_dt = None
+moeny = None
 
-topindex = rowcount - 30
-bottomindex = rowcount -1
+with open(sim_log, 'r') as s:
+
+	line = s.readline()
+	start_date = line.split(',')[0]
+	start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+	money = int(line.split(',')[1].strip())
+
+final_date = data['Date'][0].split()[0]
+final_dt = datetime.strptime(final_date, '%Y-%m-%d')
+
+print('start...', start_dt)
+print('end...', final_dt)
+print('money...', money)
+
+def add_to_log(date, money, companies):
+
+	date_string = date.strftime('%Y-%m-%d')
+
+	with open(sim_log, 'r+') as f:
+		content = f.read()
+		f.seek(0)
+		f.write('{}, {}, {}\n{}'.format(date_string, money, companies, content))
+		f.flush()
 
 def get_data(ticker):
 
+	end = start_dt
+	start = end + timedelta(days = -30)
+
 	sql = """
 			SELECT * FROM daily 
-			WHERE Ticker = "{}"
+			WHERE Ticker = '{}' and Date BETWEEN '{}' AND '{}'
 			ORDER BY Date DESC
-		""".format(ticker)
+		""".format(ticker, start, end)
 
 	df = pd.read_sql(sql, engine)
 
-	temp = df.copy(deep = True)
-
-	df2 = temp.loc[topindex: bottomindex]
-
-	df2.reset_index(inplace = True)
-
-	return df2
+	return df
 
 
 def thumbsup():
@@ -77,9 +100,6 @@ def thumbsup():
 			print('error')
 			continue
 
-		if df.shape[0] != limit:
-			continue
-
 		result = fila.gogo(df)
 		count = result[0]
 		mode = result[1]
@@ -91,75 +111,61 @@ def thumbsup():
 
 def main():
 
-	global topindex, bottomindex
+	global money, start_dt
 
-	plus_days = 0
-	neg_days = 0
-	day_count = 1
-
-	balance_sheet = []
-	initial = 10000
-	money = initial
-	balance_sheet.append(money)
-
-	with open(tentative, 'w') as f:
-
-		while topindex > 0:
-			print('day', day_count)
-			f.write('\nDay {}\n'.format(day_count))
+	with open(sim_results, 'w') as f:
+		while start_dt != final_dt:
+			print('{}'.format(start_dt))
+			f.write('\n{}\n'.format(start_dt))
 			f.flush()
 			final = thumbsup()
-			investable = money * .9
 			totalgain = 0
+			company_string = ''
 			for value in final:
+				start = start_dt
+				end = start_dt + timedelta(days = 1)
 				ticker = value[0]
 				mode = value[1]
 				count = value[2]
 				sql = """
 						SELECT * FROM daily 
-						WHERE Ticker = "{}"
+						WHERE Ticker = '{}' and Date BETWEEN '{}' AND '{}'
 						ORDER BY Date DESC
-					""".format(ticker)
-
+					""".format(ticker, start, end)
 				df = pd.read_sql(sql, engine)
-				result = fila.invest(investable * (1/len(final)), ticker, df['Open'][topindex-1],  df['Close'][topindex-1], mode, count)
+				if df.shape[0] != 1:
+					continue
+				company_string += '{} '.format(ticker)
+				result = fila.invest(money * (1/len(final)), ticker, df['Open'][0],  df['Close'][0], mode, count)
 				totalgain += result['gain/loss']
 				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}, Mode: {}, Count: {}\n'.format(result['ticker'], result['open'], result['close'], result['bought'], result['sold'], result['gain/loss'], result['mode'], result['count']))
 				f.flush()
 
-			money += totalgain
-			if totalgain > 0:
-				plus_days += 1
-			elif totalgain < 0:
-				neg_days += 1
-			print('invested')
+			money += math.floor(totalgain * 100)/ 100
 			f.write('current balance: {}\n'.format(money))
-			print('balance', money)
-			balance_sheet.append(money)
-			topindex -= 1
-			bottomindex -= 1
-			day_count += 1
+			f.flush()
+			add_to_log(start_dt, money, company_string)
+			start_dt = start_dt + timedelta(days = 1)
 
-		print('net change', money - initial)
-		print('high', max(balance_sheet))
-		print('low', min(balance_sheet))
-		print('positive days', plus_days)
-		print('negative days', neg_days)
-		f.write('Net Change: {}, Current Balance: {}\n'.format(money - initial, money))
-		f.flush()
+	display()
 
-		plt.plot(range(0, len(balance_sheet)), balance_sheet)
-		plt.title('Gain for Open Close Method')
-		plt.xlabel('Days')
-		plt.ylabel('Balance')
-
-		plt.savefig(bargraph)
-
-		plt.close()
-
+def display():
+	balance_sheet = []
+	with open(sim_log, 'r') as f:
+		for x in f:
+			balance_sheet.append(int(x.split(',')[1]))
+	plt.plot(range(0, len(balance_sheet)), balance_sheet)
+	plt.title('Investing on 4 or more negative consecutive days')
+	plt.xlabel('Days')
+	plt.ylabel('Balance')
+	plt.savefig(sim_image)
+	plt.close()
 
 if __name__ == '__main__':
 	main()
+
+
+
 
 
 
