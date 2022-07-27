@@ -1,7 +1,5 @@
 # invest on 4 or more consecutive negative days
 
-# fix simulation bug where the start date gets writen again
-
 import pandas as pd 
 from sqlalchemy.types import Text
 from sqlalchemy import create_engine
@@ -47,7 +45,7 @@ with open(sim_log, 'r') as s:
 
 	line = s.readline()
 	start_date = line.split(',')[0]
-	start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+	start_dt = datetime.strptime(start_date, '%Y-%m-%d') + timedelta(days = 1)
 	money = float(line.split(',')[1].strip())
 
 final_date = data['Date'][0].split()[0]
