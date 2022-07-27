@@ -17,7 +17,7 @@ log = os.path.join(cwd, 'collect_data', 'daily_log.txt')
 d = open(log, 'r')
 start_string = d.readline().strip()
 d.close()
-today = datetime.now()
+today = datetime.now(timezone('US/Eastern'))
 today_string = today.strftime('%Y-%m-%d')
 
 tracker = os.path.join(cwd, 'collect_data/tracker', '{}.txt'.format(today_string))
@@ -38,6 +38,7 @@ def download(tickers, ticlist):
 	global dataframe, errors
 
 	try:
+		# end is not inclusive
 		data = yf.download(tickers, start = start_string, end = today_string, group_by = 'ticker')
 		for ticker in ticlist:
 			temp = data.copy(deep = True)

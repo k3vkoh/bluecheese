@@ -21,7 +21,7 @@ import math
 
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
-today = datetime.now()
+today = datetime.now(timezone('US/Eastern'))
 today_string = today.strftime('%Y-%m-%d')
 
 def gogo(df):

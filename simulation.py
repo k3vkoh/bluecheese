@@ -14,6 +14,7 @@ from scipy.stats import norm
 import statistics
 
 from datetime import datetime, timedelta
+from pytz import timezone
 
 import os
 import requests
@@ -24,7 +25,7 @@ import analysis.open_close.filter_a as fila
 
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
-today = datetime.now()
+today = datetime.now(timezone('US/Eastern'))
 today_string = today.strftime('%Y-%m-%d')
 
 cwd = os.getcwd()

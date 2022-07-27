@@ -3,7 +3,7 @@ import collect_data.get_daily as daily
 from datetime import datetime
 import os
 
-today = datetime.now()
+today = datetime.now(timezone('US/Eastern'))
 today_string = today.strftime('%Y-%m-%d')
 
 cwd = os.getcwd()
