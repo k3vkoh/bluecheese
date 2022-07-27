@@ -1,6 +1,6 @@
 # invest on 4 or more consecutive negative days
 
-# dynamic porfolio needs to be added
+# fix simulation bug where the start date gets writen again
 
 import pandas as pd 
 from sqlalchemy.types import Text
@@ -19,7 +19,6 @@ from pytz import timezone
 import os
 import requests
 import glob
-import math 
 
 import analysis.open_close.filter_a as fila 
 
@@ -33,6 +32,7 @@ cwd = os.getcwd()
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 sim_log = os.path.join(cwd, 'results', 'sim.txt')
 sim_image = os.path.join(cwd, 'results', 'sim.png')
+sim_results = os.path.join(cwd, 'results', 'results.txt')
 
 sql = """
 		SELECT * FROM prod 
@@ -110,9 +110,7 @@ def main():
 
 	global money, start_dt
 
-	sim_results = os.path.join(cwd, 'results/sim', '{}.txt'.format(start_dt))
-
-	with open(sim_results, 'w') as f:
+	with open(sim_results, 'a') as f:
 		while start_dt <= final_dt:
 			print('{}'.format(start_dt))
 			f.write('\n{}\n'.format(start_dt))
@@ -140,7 +138,8 @@ def main():
 				f.write('{}, Open: {}, Close: {}, Bought: {}, Sold: {}, Gain/Loss: {}, Mode: {}, Count: {}\n'.format(result['ticker'], result['open'], result['close'], result['bought'], result['sold'], result['gain/loss'], result['mode'], result['count']))
 				f.flush()
 
-			money += math.floor(totalgain * 100)/ 100
+			money += totalgain
+			money = ((money * 100)//1)/100
 			f.write('current balance: {}\n'.format(money))
 			f.flush()
 			add_to_log(start_dt, money, company_string)
