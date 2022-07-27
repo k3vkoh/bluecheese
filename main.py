@@ -1,6 +1,8 @@
 import collect_data.get_daily as daily
+import simulation as sim
 
 from datetime import datetime
+from pytz import timezone
 import os
 
 today = datetime.now(timezone('US/Eastern'))
@@ -19,6 +21,8 @@ def main():
 
 	if date != today_string:
 		daily.main()
+
+	sim.main()
 
 if __name__ == '__main__':
 	main()

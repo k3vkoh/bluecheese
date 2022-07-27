@@ -1,6 +1,7 @@
 import requests
 import json
 from datetime import datetime, timedelta
+from pytz import timezone
 import pandas as pd 
 from sqlalchemy.types import Text
 from sqlalchemy import create_engine
@@ -89,7 +90,7 @@ def collect():
 				ticlist = []
 
 	df = pd.DataFrame(data = dataframe)
-	df.to_sql('daily', engine, if_exists = 'append', index = False)
+	df.to_sql('prod', engine, if_exists = 'append', index = False)
 
 	add_to_log(today_string)
 	print("DONE")

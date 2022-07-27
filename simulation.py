@@ -33,10 +33,9 @@ cwd = os.getcwd()
 ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 sim_log = os.path.join(cwd, 'results', 'sim.txt')
 sim_image = os.path.join(cwd, 'results', 'sim.png')
-sim_results = os.path.join(cwd, 'results/sim', '{}.txt'.format(today_string))
 
 sql = """
-		SELECT * FROM daily 
+		SELECT * FROM prod 
 		WHERE Ticker = 'AAPL'
 		ORDER BY Date DESC
 		LIMIT 1
@@ -44,15 +43,12 @@ sql = """
 
 data = pd.read_sql(sql, engine)
 
-start_dt = None
-moeny = None
-
 with open(sim_log, 'r') as s:
 
 	line = s.readline()
 	start_date = line.split(',')[0]
 	start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-	money = int(line.split(',')[1].strip())
+	money = float(line.split(',')[1].strip())
 
 final_date = data['Date'][0].split()[0]
 final_dt = datetime.strptime(final_date, '%Y-%m-%d')
@@ -77,7 +73,7 @@ def get_data(ticker):
 	start = end + timedelta(days = -30)
 
 	sql = """
-			SELECT * FROM daily 
+			SELECT * FROM prod 
 			WHERE Ticker = '{}' and Date BETWEEN '{}' AND '{}'
 			ORDER BY Date DESC
 		""".format(ticker, start, end)
@@ -91,7 +87,7 @@ def thumbsup():
 
 	final = []
 
-	for temp in ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'ABNB']:
+	for temp in ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'GOOGL']:
 
 		ticker = temp.strip()
 
@@ -114,8 +110,10 @@ def main():
 
 	global money, start_dt
 
+	sim_results = os.path.join(cwd, 'results/sim', '{}.txt'.format(start_dt))
+
 	with open(sim_results, 'w') as f:
-		while start_dt != final_dt:
+		while start_dt <= final_dt:
 			print('{}'.format(start_dt))
 			f.write('\n{}\n'.format(start_dt))
 			f.flush()
@@ -129,7 +127,7 @@ def main():
 				mode = value[1]
 				count = value[2]
 				sql = """
-						SELECT * FROM daily 
+						SELECT * FROM prod 
 						WHERE Ticker = '{}' and Date BETWEEN '{}' AND '{}'
 						ORDER BY Date DESC
 					""".format(ticker, start, end)

@@ -9,6 +9,7 @@ import numpy as np
 import statistics
 
 from datetime import datetime
+from pytz import timezone
 
 import os
 
@@ -25,7 +26,7 @@ year = '2022'
 date_string = year + "-" + month
 
 sql = """
-		SELECT * FROM daily 
+		SELECT * FROM prod 
 		WHERE Ticker = 'AAPL'
 	"""
 df = pd.read_sql(sql, engine)
@@ -37,7 +38,7 @@ rank_path = os.path.join(cwd, 'rank', '{}.txt'.format(date_string))
 
 def get_data():
 	sql = """
-			SELECT * FROM daily 
+			SELECT * FROM prod 
 		"""
 
 	df = pd.read_sql(sql, engine)
