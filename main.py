@@ -21,8 +21,7 @@ def main():
 
 	if date != today_string:
 		daily.main()
-
-	sim.main()
+		sim.main()
 
 if __name__ == '__main__':
 	main()

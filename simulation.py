@@ -149,7 +149,8 @@ def display():
 	balance_sheet = []
 	with open(sim_log, 'r') as f:
 		for x in f:
-			balance_sheet.append(int(x.split(',')[1]))
+			balance_sheet.append(float(x.split(',')[1]))
+	balance_sheet.reverse()
 	plt.plot(range(0, len(balance_sheet)), balance_sheet)
 	plt.title('Investing on 4 or more negative consecutive days')
 	plt.xlabel('Days')
