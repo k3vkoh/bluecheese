@@ -13,7 +13,7 @@ cwd = os.getcwd()
 date_log = os.path.join(cwd, 'collect_data', 'daily_log.txt')
 
 
-def main():
+def collect():
 
 	f = open(date_log, 'r')
 	date = f.readline().strip()
@@ -22,7 +22,9 @@ def main():
 	if date != today_string:
 		daily.main()
 	
+def simulate():
 	sim.main()
 
 if __name__ == '__main__':
-	main()
+	collect()
+	simulate()
