@@ -16,36 +16,40 @@ import os
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
 today = datetime.now(timezone('US/Eastern'))
-today_string = today.strftime('%Y-%m-%d')
+date_string = today.strftime('%Y-%m')
+month = int(today.strftime('%m'))
 
 cwd = os.getcwd()
-
-month = '06'
-year = '2022'
-
-date_string = year + "-" + month
-
-sql = """
-		SELECT * FROM prod 
-		WHERE Ticker = 'AAPL'
-	"""
-df = pd.read_sql(sql, engine)
-df2 = df.loc[df['Date'].str.contains(date_string)]
-rowcount = df2.shape[0]
 
 ticker_path = os.path.join(cwd, 'tickers', 'tickers.txt')
 rank_path = os.path.join(cwd, 'rank', '{}.txt'.format(date_string))
 
+daysinmonth = [31,28,31,30,31,30,31,31,30,31,30,31]
+
+start = date_string + '-01'
+end = date_string + '-{}'.format(daysinmonth[month-1])
+
+sql = """
+			SELECT * FROM prod 
+			WHERE Ticker = 'AAPL' and Date BETWEEN '{}' AND '{}'
+			ORDER BY Date DESC
+		""".format(start, end)
+
+tempdf = pd.read_sql(sql, engine)
+
+rowcount = tempdf.shape[0]
+
 def get_data():
+
 	sql = """
 			SELECT * FROM prod 
-		"""
+			WHERE Date BETWEEN '{}' AND '{}'
+			ORDER BY Date DESC
+		""".format(start, end)
 
 	df = pd.read_sql(sql, engine)
-
-	temp = df.loc[df['Date'].str.contains(date_string)]
-
-	return temp
+ 
+	return df
 
 
 def rank():
@@ -58,27 +62,26 @@ def rank():
 		print('error')
 		return
 
+	open_close = ((df['Close'] - df['Open']) / df['Open']) * 100
+
 	with open(ticker_path, 'r') as t:
 
-		# for temp in ['AERC']:
 		for temp in t:
 			ticker = temp.strip()
-			temp = df.loc[df['Ticker'] == ticker]
-			open_close = temp['Close'] - temp['Open']
-			nonna_values = open_close.notna()
-			open_close = open_close[nonna_values]
-			if open_close.size == rowcount:
-				sum_oc = sum(open_close)
+			temp = open_close.loc[df['Ticker'] == ticker]
+			nonna_values = temp.notna()
+			temp = temp[nonna_values]
+			if temp.size == rowcount:
+				sum_oc = sum(temp)
 				rank_list.append([ticker, sum_oc])
 
-	rank_list.sort(key = lambda x: x[1], reverse = True)
-
 	with open(rank_path, 'w') as f:
-		f.write('Ranking for {}-{}\n\n'.format(month, year))
+		f.write('Ranking for {}\n\n'.format(date_string))
 		f.write('All Tickers:\n')
 		for x in rank_list:
 			f.write('Ticker: {} Average: {}\n'.format(x[0], x[1]))
 		f.write('Top 5:\n')
+		rank_list.sort(key = lambda x: x[1], reverse = True)
 		count = 1
 		for x in rank_list[:5]:
 			f.write('{}. Ticker: {} Average: {}\n'.format(count, x[0], x[1]))	
