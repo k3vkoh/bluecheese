@@ -19,17 +19,20 @@ import os
 
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
-today = datetime.now(timezone('US/Eastern'))
-# date_string = today.strftime('%Y-%m')
-# month = int(today.strftime('%m'))
-date_string = '2022-07'
+year = 2022
 month = 7
+date_string = None 
+if month < 10:
+	date_string = '{}-0{}'.format(year, month)
+else:
+	date_string = '{}-{}'.format(year, month)
 
 cwd = os.getcwd()
 
 ticker_path = os.path.join(cwd, 'tickers', 'tickers.txt')
 rank_path = os.path.join(cwd, 'rank', '{}.txt'.format(date_string))
-rank_path = os.path.join(cwd, 'rank', '{}.gif'.format(date_string))
+gif_path = os.path.join(cwd, 'rank', '{}.gif'.format(date_string))
+png_path = os.path.join(cwd, 'rank', '{}.png'.format(date_string))
 
 daysinmonth = [31,28,31,30,31,30,31,31,30,31,30,31]
 
@@ -153,9 +156,11 @@ def rank():
 
 	ani = FuncAnimation(fig, animate, frames=rowcount, interval = 1000, repeat=True, init_func=init)
 	
-	plt.show()
-	# writergif = animation.PillowWriter(fps=59)
-	# ani.save(f, writer=writergif)
+	with open(gif_path, 'wb') as gif:
+		writergif = animation.PillowWriter()
+		ani.save(gif, writer=writergif)
+
+	plt.savefig(png_path)
 
 if __name__ == '__main__':
 	rank()
