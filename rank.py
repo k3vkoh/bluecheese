@@ -4,6 +4,10 @@ from sqlalchemy import create_engine
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import animation
+from matplotlib.animation import FuncAnimation
+
+import seaborn as sns
 
 import numpy as np
 import statistics
@@ -16,13 +20,16 @@ import os
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
 today = datetime.now(timezone('US/Eastern'))
-date_string = today.strftime('%Y-%m')
-month = int(today.strftime('%m'))
+# date_string = today.strftime('%Y-%m')
+# month = int(today.strftime('%m'))
+date_string = '2022-07'
+month = 7
 
 cwd = os.getcwd()
 
 ticker_path = os.path.join(cwd, 'tickers', 'tickers.txt')
 rank_path = os.path.join(cwd, 'rank', '{}.txt'.format(date_string))
+rank_path = os.path.join(cwd, 'rank', '{}.gif'.format(date_string))
 
 daysinmonth = [31,28,31,30,31,30,31,31,30,31,30,31]
 
@@ -39,6 +46,15 @@ tempdf = pd.read_sql(sql, engine)
 
 rowcount = tempdf.shape[0]
 
+animatelabel = []
+animatedata = []
+
+palette = list(reversed(sns.color_palette("Spectral", 10).as_hex()))
+
+fig = plt.figure(figsize=(7,5))
+plt.style.use('seaborn-deep')
+
+
 def get_data():
 
 	sql = """
@@ -51,8 +67,49 @@ def get_data():
  
 	return df
 
+def init():
+	plt.clf()
+	plt.xlabel('% Change')
+	plt.title('Best Stocks for {}'.format(date_string))
+
+def animate(i):
+
+	y0 = sum(animatedata[0][:i+1])
+	y1 = sum(animatedata[1][:i+1])
+	y2 = sum(animatedata[2][:i+1])
+	y3 = sum(animatedata[3][:i+1])
+	y4 = sum(animatedata[4][:i+1])
+	y5 = sum(animatedata[5][:i+1])
+	y6 = sum(animatedata[6][:i+1])
+	y7 = sum(animatedata[7][:i+1])
+	y8 = sum(animatedata[8][:i+1])
+	y9 = sum(animatedata[9][:i+1])
+
+	minval = min([y0,y1,y2,y3,y4,y5,y6,y7,y8,y9])
+	maxval =  max([y0,y1,y2,y3,y4,y5,y6,y7,y8,y9])
+	minx = 0
+	maxx = 500
+	if minval < 0:
+		minx = minval
+	if maxval > 500:
+		maxx = maxval
+	plt.xlim(minx, maxx)
+
+	plt.barh(range(10), sorted([y0,y1,y2,y3,y4,y5,y6,y7,y8,y9]), color=palette)
+
+	tickdic = {}
+	for x in range(10):
+		tickdic[animatelabel[x]] = sum(animatedata[x][:i+1])
+
+	sorted_tickdic = sorted(tickdic.items(), key=lambda x: x[1])
+
+	tcks = [i[0] for i in sorted_tickdic]
+
+	plt.yticks(np.arange(10), tcks)
 
 def rank():
+
+	global animatelabel, animatedata
 
 	rank_list = []
 
@@ -80,12 +137,25 @@ def rank():
 		f.write('All Tickers:\n')
 		for x in rank_list:
 			f.write('Ticker: {} Average: {}\n'.format(x[0], x[1]))
-		f.write('Top 5:\n')
+		f.write('Top 10:\n')
 		rank_list.sort(key = lambda x: x[1], reverse = True)
 		count = 1
-		for x in rank_list[:5]:
+		for x in rank_list[:10]:
 			f.write('{}. Ticker: {} Average: {}\n'.format(count, x[0], x[1]))	
 			count += 1
+
+	for x in rank_list[:10]:
+		temp = open_close.loc[df['Ticker'] == x[0]]
+		temp.reset_index(drop=True, inplace=True)
+		temp = temp.values
+		animatelabel.append(x[0])
+		animatedata.append(temp)
+
+	ani = FuncAnimation(fig, animate, frames=rowcount, interval = 1000, repeat=True, init_func=init)
+	
+	plt.show()
+	# writergif = animation.PillowWriter(fps=59)
+	# ani.save(f, writer=writergif)
 
 if __name__ == '__main__':
 	rank()
