@@ -34,6 +34,7 @@ rank_path = os.path.join(cwd, 'rank', '{}.txt'.format(date_string))
 gif_path = os.path.join(cwd, 'rank', '{}.gif'.format(date_string))
 png_path = os.path.join(cwd, 'rank', '{}.png'.format(date_string))
 movement_path = os.path.join(cwd, 'rank', '{}_movement.gif'.format(date_string))
+finalmove_path = os.path.join(cwd, 'rank', '{}_movement.png'.format(date_string))
 
 daysinmonth = [31,28,31,30,31,30,31,31,30,31,30,31]
 
@@ -79,8 +80,6 @@ def init():
 
 def init2():
 	plt.clf()
-	plt.xlabel('Days Elapsed')
-	plt.title('Rank of Best Stocks for {}'.format(date_string))
 
 def animate(i):
 
@@ -120,6 +119,11 @@ def animate(i):
 
 def animate2(i):
 
+	plt.clf()
+
+	plt.xlabel('Days Elapsed')
+	plt.title('Rank of Best Stocks for {}'.format(date_string))
+
 	tickdic = {}
 	for x in range(10):
 		tickdic[animatelabel[x]] = sum(animatedata[x][:i+1])
@@ -134,14 +138,13 @@ def animate2(i):
 			listpos[animatelabel[j]] = [tcks.index(animatelabel[j])]
 		else:
 			listpos[animatelabel[j]].append(tcks.index(animatelabel[j]))
-		plt.plot(np.arange(len(listpos[animatelabel[j]])), listpos[animatelabel[j]], label = animatelabel[j], color = palette[j])
+		plt.plot(np.arange(len(listpos[animatelabel[j]])), listpos[animatelabel[j]], color = palette[j])
+		plt.annotate(animatelabel[j], (len(listpos[animatelabel[j]])-1, listpos[animatelabel[j]][-1] ))
 		j += 1
 
 	plt.yticks(np.arange(10), np.arange(1,11)[::-1])
 
 	plt.xlim(0, rowcount)
-
-	plt.legend(animatelabel)
 
 def rank():
 
@@ -200,7 +203,6 @@ def rank():
 		ani.save(gif, writer=writergif)
 
 	plt.savefig(png_path)
-	plt.clf()
 
 	ani = FuncAnimation(fig, animate2, frames=rowcount, interval = 1000, repeat=True, init_func=init2)
 	
@@ -208,10 +210,7 @@ def rank():
 		writergif = animation.PillowWriter()
 		ani.save(move, writer=writergif)
 
+	plt.savefig(finalmove_path)
+
 if __name__ == '__main__':
 	rank()
-
-
-
-		
-
