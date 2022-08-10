@@ -33,6 +33,7 @@ ticker_path = os.path.join(cwd, 'tickers', 'tickers.txt')
 rank_path = os.path.join(cwd, 'rank', '{}.txt'.format(date_string))
 gif_path = os.path.join(cwd, 'rank', '{}.gif'.format(date_string))
 png_path = os.path.join(cwd, 'rank', '{}.png'.format(date_string))
+movement_path = os.path.join(cwd, 'rank', '{}_movement.gif'.format(date_string))
 
 daysinmonth = [31,28,31,30,31,30,31,31,30,31,30,31]
 
@@ -57,6 +58,7 @@ palette = list(reversed(sns.color_palette("Spectral", 10).as_hex()))
 fig = plt.figure(figsize=(7,5))
 plt.style.use('seaborn-deep')
 
+listpos = {}
 
 def get_data():
 
@@ -74,6 +76,11 @@ def init():
 	plt.clf()
 	plt.xlabel('% Change')
 	plt.title('Best Stocks for {}'.format(date_string))
+
+def init2():
+	plt.clf()
+	plt.xlabel('Days Elapsed')
+	plt.title('Rank of Best Stocks for {}'.format(date_string))
 
 def animate(i):
 
@@ -110,6 +117,32 @@ def animate(i):
 
 	plt.yticks(np.arange(10), tcks)
 
+
+def animate2(i):
+
+	tickdic = {}
+	for x in range(10):
+		tickdic[animatelabel[x]] = sum(animatedata[x][:i+1])
+
+	sorted_tickdic = sorted(tickdic.items(), key=lambda x: x[1])
+
+	tcks = [i[0] for i in sorted_tickdic]
+
+	j = 0
+	while j < len(animatelabel):
+		if animatelabel[j] not in listpos:
+			listpos[animatelabel[j]] = [tcks.index(animatelabel[j])]
+		else:
+			listpos[animatelabel[j]].append(tcks.index(animatelabel[j]))
+		plt.plot(np.arange(len(listpos[animatelabel[j]])), listpos[animatelabel[j]], label = animatelabel[j], color = palette[j])
+		j += 1
+
+	plt.yticks(np.arange(10), np.arange(1,11)[::-1])
+
+	plt.xlim(0, rowcount)
+
+	plt.legend(animatelabel)
+
 def rank():
 
 	global animatelabel, animatedata
@@ -140,12 +173,18 @@ def rank():
 		f.write('All Tickers:\n')
 		for x in rank_list:
 			f.write('Ticker: {} Average: {}\n'.format(x[0], x[1]))
+
+	with open(rank_path, 'r+') as f:
+		content = f.read()
+		f.seek(0)
 		f.write('Top 10:\n')
 		rank_list.sort(key = lambda x: x[1], reverse = True)
 		count = 1
 		for x in rank_list[:10]:
 			f.write('{}. Ticker: {} Average: {}\n'.format(count, x[0], x[1]))	
 			count += 1
+		f.write('\n' + content)
+		f.flush()
 
 	for x in rank_list[:10]:
 		temp = open_close.loc[df['Ticker'] == x[0]]
@@ -161,6 +200,13 @@ def rank():
 		ani.save(gif, writer=writergif)
 
 	plt.savefig(png_path)
+	plt.clf()
+
+	ani = FuncAnimation(fig, animate2, frames=rowcount, interval = 1000, repeat=True, init_func=init2)
+	
+	with open(movement_path, 'wb') as move:
+		writergif = animation.PillowWriter()
+		ani.save(move, writer=writergif)
 
 if __name__ == '__main__':
 	rank()
