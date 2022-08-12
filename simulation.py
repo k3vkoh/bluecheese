@@ -6,6 +6,8 @@ from sqlalchemy import create_engine
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import animation
+from matplotlib.animation import FuncAnimation
 
 import numpy as np
 from scipy.stats import norm
@@ -31,6 +33,7 @@ ticker_list = os.path.join(cwd, 'tickers', 'tickers.txt')
 sim_log = os.path.join(cwd, 'results', 'sim.txt')
 sim_image = os.path.join(cwd, 'results', 'sim.png')
 sim_results = os.path.join(cwd, 'results', 'results.txt')
+sim_gif = os.path.join(cwd, 'results', 'sim.gif')
 
 sql = """
 		SELECT * FROM prod 
@@ -54,6 +57,27 @@ final_dt = datetime.strptime(final_date, '%Y-%m-%d')
 print('start...', start_dt)
 print('end...', final_dt)
 print('money...', money)
+
+fig = plt.figure(figsize=(7,5))
+plt.style.use('seaborn-deep')
+
+listpos = []
+balance_sheet = []
+
+def init():
+	plt.clf()
+	plt.title('Investing on 4 or more negative consecutive days')
+	plt.xlabel('Days')
+	plt.ylabel('Balance')
+
+def animate(i):
+	global listpos
+
+	listpos.append(balance_sheet[i])
+
+	plt.plot(range(1,len(listpos)+1), listpos, color = '#00FF00')
+	plt.xlim(0, len(listpos))
+
 
 def add_to_log(date, money, companies):
 
@@ -143,23 +167,27 @@ def main():
 			add_to_log(start_dt, money, company_string)
 			start_dt = start_dt + timedelta(days = 1)
 
-	display()
-
 def display():
-	balance_sheet = []
+	global balance_sheet
+
 	with open(sim_log, 'r') as f:
 		for x in f:
 			balance_sheet.append(float(x.split(',')[1]))
 	balance_sheet.reverse()
-	plt.plot(range(0, len(balance_sheet)), balance_sheet)
-	plt.title('Investing on 4 or more negative consecutive days')
-	plt.xlabel('Days')
-	plt.ylabel('Balance')
+
+	ani = FuncAnimation(fig, animate, frames=len(balance_sheet), interval = 100, repeat=True, init_func=init)
+	
+	with open(sim_gif, 'wb') as gif:
+		writergif = animation.PillowWriter()
+		ani.save(gif, writer=writergif)
+
 	plt.savefig(sim_image)
+
 	plt.close()
 
 if __name__ == '__main__':
 	main()
+	display()
 
 
 
