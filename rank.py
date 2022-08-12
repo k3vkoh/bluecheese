@@ -20,7 +20,10 @@ import os
 engine = create_engine('sqlite:////Users/kevinkoh/Desktop/bluecheese/bluecheese.db')
 
 year = 2022
-month = 7
+
+# change this each month
+month = 8
+
 date_string = None 
 if month < 10:
 	date_string = '{}-0{}'.format(year, month)
