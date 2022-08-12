@@ -64,6 +64,9 @@ plt.style.use('seaborn-deep')
 listpos = []
 balance_sheet = []
 
+# change these tickers
+sim_tickers = ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'GOOGL']
+
 def init():
 	plt.clf()
 	plt.title('Investing on 4 or more negative consecutive days')
@@ -109,7 +112,7 @@ def thumbsup():
 
 	final = []
 
-	for temp in ['AAPL', 'AMZN', 'TSLA', 'MSFT', 'GOOGL']:
+	for temp in sim_tickers:
 
 		ticker = temp.strip()
 
