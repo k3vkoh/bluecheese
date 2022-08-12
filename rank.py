@@ -175,7 +175,6 @@ def rank():
 				rank_list.append([ticker, sum_oc])
 
 	with open(rank_path, 'w') as f:
-		f.write('Ranking for {}\n\n'.format(date_string))
 		f.write('All Tickers:\n')
 		for x in rank_list:
 			f.write('Ticker: {} Average: {}\n'.format(x[0], x[1]))
@@ -183,6 +182,7 @@ def rank():
 	with open(rank_path, 'r+') as f:
 		content = f.read()
 		f.seek(0)
+		f.write('Ranking for {}\n\n'.format(date_string))
 		f.write('Top 10:\n')
 		rank_list.sort(key = lambda x: x[1], reverse = True)
 		count = 1
