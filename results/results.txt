@@ -6356,3 +6356,95 @@ current balance: 44133.56
 2022-08-11 00:00:00
 TSLA, Open: 889.5399780273438, Close: 859.8900146484375, Bought: 43587.458923339844, Sold: 42134.61071777344, Gain/Loss: -1452.8482055664062, Mode: minus, Count: 5
 current balance: 42680.71
+
+2022-08-12 00:00:00
+AMZN, Open: 142.0500030517578, Close: 143.5500030517578, Bought: 21307.500457763672, Sold: 21532.500457763672, Gain/Loss: 225.0, Mode: minus, Count: 4
+TSLA, Open: 289.4166564941406, Close: 300.0299987792969, Bought: 21127.415924072266, Sold: 21902.189910888672, Gain/Loss: 774.7739868164062, Mode: minus, Count: 6
+current balance: 43680.48
+
+2022-08-13 00:00:00
+current balance: 43680.48
+
+2022-08-14 00:00:00
+current balance: 43680.48
+
+2022-08-15 00:00:00
+current balance: 43680.48
+
+2022-08-16 00:00:00
+current balance: 43680.48
+
+2022-08-17 00:00:00
+current balance: 43680.48
+
+2022-08-18 00:00:00
+current balance: 43680.48
+
+2022-08-19 00:00:00
+current balance: 43680.48
+
+2022-08-20 00:00:00
+current balance: 43680.48
+
+2022-08-21 00:00:00
+current balance: 43680.48
+
+2022-08-22 00:00:00
+current balance: 43680.48
+
+2022-08-23 00:00:00
+current balance: 43680.48
+
+2022-08-24 00:00:00
+current balance: 43680.48
+
+2022-08-25 00:00:00
+current balance: 43680.48
+
+2022-08-26 00:00:00
+current balance: 43680.48
+
+2022-08-27 00:00:00
+current balance: 43680.48
+
+2022-08-28 00:00:00
+current balance: 43680.48
+
+2022-08-29 00:00:00
+current balance: 43680.48
+
+2022-08-30 00:00:00
+current balance: 43680.48
+
+2022-08-31 00:00:00
+current balance: 43680.48
+
+2022-09-01 00:00:00
+AMZN, Open: 126.0, Close: 127.81999969482422, Bought: 14490.0, Sold: 14699.299964904785, Gain/Loss: 209.29996490478516, Mode: minus, Count: 4
+MSFT, Open: 258.8699951171875, Close: 260.3999938964844, Bought: 14496.7197265625, Sold: 14582.399658203125, Gain/Loss: 85.679931640625, Mode: minus, Count: 4
+GOOGL, Open: 108.27999877929688, Close: 109.73999786376953, Bought: 14509.519836425781, Sold: 14705.159713745117, Gain/Loss: 195.63987731933594, Mode: minus, Count: 4
+current balance: 44171.09
+
+2022-09-02 00:00:00
+current balance: 44171.09
+
+2022-09-03 00:00:00
+current balance: 44171.09
+
+2022-09-04 00:00:00
+current balance: 44171.09
+
+2022-09-05 00:00:00
+current balance: 44171.09
+
+2022-09-06 00:00:00
+current balance: 44171.09
+
+2022-09-07 00:00:00
+current balance: 44171.09
+
+2022-09-08 00:00:00
+current balance: 44171.09
+
+2022-09-09 00:00:00
+current balance: 44171.09
